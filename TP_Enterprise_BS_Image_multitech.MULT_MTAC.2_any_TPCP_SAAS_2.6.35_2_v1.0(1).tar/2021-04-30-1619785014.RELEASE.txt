@@ -1,0 +1,61 @@
+---------------------  Configuration  ---------------------
+
+DEBUG_ACTIVE: 0
+CLIENT: tpe_saas_tpcp
+NTP1: 0.pool.ntp.org
+NTP2: 1.pool.ntp.org
+NTP3: 2.pool.ntp.org
+NTP4: 
+APN: 
+HOST1: 
+HOST2: 
+HOST3: 
+HOST4: 
+HOST5: 
+HOST6: 
+LRR: lrr-2.6.35_2
+HARDWARE: mtcdt
+FREQUENCE: any
+IPTABLES: tpe
+SEED: actility
+COMPILATION FLAG: TPE
+PATCH: 1.9
+LRRINI: tpe_saas_tpcp.nfr920
+CELLBACKHAUL: 4g
+RFREGION: any
+IPSEC_UUID: 
+IPSEC_PLATFORM: 
+IPSEC_INSTANCE: 
+TLS: 
+MLINUX VERSION: mLinux 5.1.8
+
+md5sum: 91cffd9c1d7ce848bfebf33f820c77e1  output/mtcdt/tpe_saas_tpcp-any-mtcdt-lrr-2.6.35_2-4g-2021-04-30-1619785014.rootfs.jffs2
+
+---------------------  Installation Process  ---------------------
+
+1) Flashing RootFS + Kernel + U-Boot by Linux:
+
+mkdir /var/volatile/flash-upgrade
+cp /media/sda1/*.rootfs.jffs2 /var/volatile/flash-upgrade/rootfs.jffs2
+cp /media/sda1/uImage*.bin /var/volatile/flash-upgrade/uImage.bin
+cp /media/sda1/u-boot*.bin /var/volatile/flash-upgrade/u-boot.bin
+touch /var/volatile/do_flash_upgrade
+reboot
+
+2) Flashing RootFS + Kernel by U-Boot:
+
+setenv serverip 10.x.x.x
+setenv ipaddr 10.x.x.y
+setenv netmask 255.255.255.0
+setenv krb 'run tftp_kernel && run tftp_rootfs && boot'
+setenv tftp_kernel 'tftp   && run erase_kernel && nand write.jffs2  kernel '
+setenv tftp_rootfs 'tftp   && run erase_rootfs && nand write.jffs2  rootfs '
+setenv erase_rootfs 'nand erase.part rootfs'
+setenv erase_kernel 'nand erase.part kernel'
+setenv tftpaddr 0x20000000
+setenv rootfs_file oe_rootfs.jffs2
+setenv kernel_file oe_uImage.bin
+setenv mtdparts mtdparts=nand0:256k(bootstrap),512k(u-boot),640k(u-boot-env1),640k(u-boot-env2),6M(kernel),8M(config),8M(oem),-(rootfs)
+setenv mtdids  nand0=nand0
+saveenv
+run krb
